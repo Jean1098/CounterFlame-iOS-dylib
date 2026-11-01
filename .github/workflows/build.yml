@@ -16,6 +16,19 @@ jobs:
         run: git clone --recursive https://github.com/theos/theos.git "$HOME/theos"
       - name: ldid
         run: brew install ldid
+      - name: Crear control
+        run: |
+          cat > control <<'CTRL'
+          Package: com.counterflame.tool
+          Name: CounterFlameTool
+          Version: 0.1.0
+          Architecture: iphoneos-arm64
+          Description: ESP tool for CounterFlame
+          Maintainer: tu_nombre
+          Author: mynamebyb
+          Section: Tweaks
+          Depends: firmware (>= 15.0), ellekit
+          CTRL
       - name: Crear filtro
         run: |
           cat > CounterFlameTool.plist <<'PLIST'
