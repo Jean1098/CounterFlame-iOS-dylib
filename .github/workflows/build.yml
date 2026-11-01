@@ -18,7 +18,7 @@ jobs:
         run: brew install ldid
       - name: Crear filtro
         run: |
-          mkdir -p layout/Library/MobileSubstrate/DynamicLibraries
+           
           cat > layout/Library/MobileSubstrate/DynamicLibraries/CounterFlameTool.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -32,8 +32,8 @@ jobs:
           </dict>
           </plist>
           PLIST
-          echo "--- layout ---"
-          find layout -type f
+        
+            
       - name: Compilar paquete
         run: |
           export THEOS="$HOME/theos"
