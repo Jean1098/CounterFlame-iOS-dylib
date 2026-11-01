@@ -1,57 +1,33 @@
 name: build
-
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
 
-concurrency:
-  group: build-${{ github.ref }}
-  cancel-in-progress: true
+permissions:
+  contents: write
 
 jobs:
   build:
-    runs-on: macos-26
+    runs-on: macos-14
     steps:
-      - name: 检出
-        uses: actions/checkout@v4
-
-      - name: 缓存 Theos
-        id: cache-theos
-        uses: actions/cache@v4
-        with:
-          path: ~/theos
-          key: theos-v2
-
-      - name: 安装 Theos
-        if: steps.cache-theos.outputs.cache-hit != 'true'
-        run: |
-          git clone --recursive https://github.com/theos/theos.git "$HOME/theos"
-
-      - name: 安装 ldid
-        run: |
-          if ! command -v ldid >/dev/null; then brew install ldid; fi
-
-      - name: 编译
+      - uses: actions/checkout@v4
+      - name: Theos
+        run: git clone --recursive https://github.com/theos/theos.git "$HOME/theos"
+      - name: ldid
+        run: brew install ldid
+      - name: Compilar paquete
         run: |
           export THEOS="$HOME/theos"
           make clean
-          make -j8
-          ls -la .theos/obj/debug/
-
-      - name: 导出成品
-        run: |
-          find .theos/obj/debug -name '*.dylib' -maxdepth 2
-          cp .theos/obj/debug/CounterFlameTool.dylib CounterFlameTool.dylib
-
-      - name: 校验架构与依赖
-        run: |
-          file CounterFlameTool.dylib
-          lipo -info CounterFlameTool.dylib
-          otool -L CounterFlameTool.dylib || true
-
-      - name: 上传 dylib
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide
+      - name: Subir deb
         uses: actions/upload-artifact@v4
         with:
-          name: CounterFlameTool.dylib
-          path: CounterFlameTool.dylib
+          name: CounterFlameTool.deb
+          path: packages/*.deb
+      - name: Publicar release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: deb-${{ github.run_number }}
+          files: packages/*.deb
