@@ -16,6 +16,24 @@ jobs:
         run: git clone --recursive https://github.com/theos/theos.git "$HOME/theos"
       - name: ldid
         run: brew install ldid
+      - name: Crear filtro
+        run: |
+          mkdir -p layout/Library/MobileSubstrate/DynamicLibraries
+          cat > layout/Library/MobileSubstrate/DynamicLibraries/CounterFlameTool.plist <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>Filter</key>
+            <dict>
+              <key>Executables</key>
+              <array><string>CounterFlame</string></array>
+            </dict>
+          </dict>
+          </plist>
+          PLIST
+          echo "--- layout ---"
+          find layout -type f
       - name: Compilar paquete
         run: |
           export THEOS="$HOME/theos"
