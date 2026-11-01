@@ -1,61 +1,9 @@
-name: build
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-
-permissions:
-  contents: write
-
-jobs:
-  build:
-    runs-on: macos-26
-    steps:
-      - uses: actions/checkout@v4
-      - name: Theos
-        run: git clone --recursive https://github.com/theos/theos.git "$HOME/theos"
-      - name: ldid
-        run: brew install ldid
-      - name: Crear control
-        run: |
-          cat > control <<'CTRL'
-          Package: com.counterflame.tool
-          Name: CounterFlameTool
-          Version: 0.1.0
-          Architecture: iphoneos-arm64
-          Description: ESP tool for CounterFlame
-          Maintainer: tu_nombre
-          Author: mynamebyb
-          Section: Tweaks
-          Depends: firmware (>= 15.0), ellekit
-          CTRL
-      - name: Crear filtro
-        run: |
-          cat > CounterFlameTool.plist <<'PLIST'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>Filter</key>
-            <dict>
-              <key>Executables</key>
-              <array><string>CounterFlame</string></array>
-            </dict>
-          </dict>
-          </plist>
-          PLIST
-      - name: Compilar paquete
-        run: |
-          export THEOS="$HOME/theos"
-          make clean
-          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
-      - name: Subir deb
-        uses: actions/upload-artifact@v4
-        with:
-          name: CounterFlameTool.deb
-          path: packages/*.deb
-      - name: Publicar release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: deb-${{ github.run_number }}
-          files: packages/*.deb
+Package: com.counterflame.tool
+Name: CounterFlameTool
+Version: 0.1.0
+Architecture: iphoneos-arm64
+Description: ESP tool for CounterFlame
+Maintainer: JeanOne
+Author: mynamebyb
+Section: Tweaks
+Depends: firmware (>= 15.0), ellekit
